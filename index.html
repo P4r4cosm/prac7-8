@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Утилизация сотрудников</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Информация о сотрудниках</h2>
+
+        <div class="employee-info">
+            <label>Имя сотрудника:</label>
+            <input type="text" id="name">
+        </div>
+
+        <div class="employee-info">
+            <label>Заработная плата:</label>
+            <input type="number" id="salary">
+        </div>
+
+        <div class="employee-info">
+            <label>Коэффициент эффективности:</label>
+            <input type="number" id="efficiency">
+        </div>
+
+        <button id="addEmployeeBtn">Добавить сотрудника</button>
+
+        <h3>Список сотрудников:</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Зарплата</th>
+                    <th>Эффективность</th>
+                    <th>Утилизация</th>
+                </tr>
+            </thead>
+            <tbody id="employeeTableBody"></tbody>
+        </table>
+
+        <h3>Результаты:</h3>
+        <table class="result-table">
+            <thead>
+                <tr>
+                    <th>Тип утилизации</th>
+                    <th>Имя</th>
+                    <th>Зарплата</th>
+                    <th>Эффективность</th>
+                    <th>Утилизация</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="minUtilizationRow">
+                    <td>Минимальная утилизация</td>
+                    <td colspan="4">—</td>
+                </tr>
+                <tr id="optimalUtilizationRow">
+                    <td>Оптимальная утилизация</td>
+                    <td colspan="4">—</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const employees = [];
+
+            class Employee {
+                constructor(name, salary, efficiency) {
+                    this.name = name;
+                    this.salary = salary;
+                    this.efficiency = efficiency;
+                    this.utilization = this.calculateUtilization();
+                }
+
+                calculateUtilization() {
+                    return this.salary / this.efficiency;
+                }
+            }
+
+            function addEmployee() {
+                const name = document.getElementById("name").value;
+                const salary = parseFloat(document.getElementById("salary").value);
+                const efficiency = parseFloat(document.getElementById("efficiency").value);
+
+                if (name && salary >= 0 && efficiency >= 0) {
+                    const employee = new Employee(name, salary, efficiency);
+                    employees.push(employee);
+
+                    const employeeTableBody = document.getElementById("employeeTableBody");
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>${employee.name}</td>
+                        <td>${employee.salary}</td>
+                        <td>${employee.efficiency}</td>
+                        <td>${employee.utilization.toFixed(2)}</td>
+                    `;
+                    employeeTableBody.appendChild(row);
+
+                    document.getElementById("name").value = '';
+                    document.getElementById("salary").value = '';
+                    document.getElementById("efficiency").value = '';
+
+                    calculateUtilization();
+                } else {
+                    alert("Пожалуйста, введите корректные данные.");
+                }
+            }
+
+            function calculateUtilization() {
+                if (employees.length === 0) return;
+
+                employees.sort((a, b) => a.utilization - b.utilization);
+
+                const minUtilizationEmployee = employees[0];
+                const optimalUtilizationEmployee = employees[employees.length - 1];
+
+                document.getElementById("minUtilizationRow").innerHTML = `
+                    <td>Минимальная утилизация</td>
+                    <td>${minUtilizationEmployee.name}</td>
+                    <td>${minUtilizationEmployee.salary}</td>
+                    <td>${minUtilizationEmployee.efficiency}</td>
+                    <td>${minUtilizationEmployee.utilization.toFixed(2)}</td>
+                `;
+
+                document.getElementById("optimalUtilizationRow").innerHTML = `
+                    <td>Оптимальная утилизация</td>
+                    <td>${optimalUtilizationEmployee.name}</td>
+                    <td>${optimalUtilizationEmployee.salary}</td>
+                    <td>${optimalUtilizationEmployee.efficiency}</td>
+                    <td>${optimalUtilizationEmployee.utilization.toFixed(2)}</td>
+                `;
+            }
+
+            document.getElementById("addEmployeeBtn").addEventListener("click", addEmployee);
+        });
+    </script>
+</body>
+</html>
